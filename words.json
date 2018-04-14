@@ -1,0 +1,11 @@
+[
+{"word":"crooked","type":"bad"},
+{"word":"mean","type":"bad"},
+{"word":"liar","type":"bad"},
+{"word":"snake oil salesman","type":"bad"},
+{"word":"honest","type":"good"},
+{"word":"good","type":"good"},
+{"word":"calculated","type":"bad"},
+{"word":"cynical","type":"bad"},
+{"word":"hopeful","type":"good"}
+]

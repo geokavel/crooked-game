@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crooked Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> 
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+<body ng-app="game" ng-controller="ctrl" ng-keydown="keydown($event)"
+ng-keyup="keyup($event)">
+<div class="container-fluid">
+<div class="row">
+<div class="col">
+<img ng-src="{{pics[0]}}" class="img-thumbnail img-fluid" />
+<kbd ng-class="'bg-' + bg[0]">1</kbd>
+</div>
+<div class="col">
+<img ng-src="{{pics[1]}}" class="img-thumbnail img-fluid" />
+<kbd ng-class="'bg-' + bg[1]">2</kbd>
+</div>
+<div class="col">
+<img ng-src="{{pics[2]}}" class="img-thumbnail img-fluid" />
+<kbd ng-class="'bg-' + bg[2]">3</kbd>
+</div>
+<div class="col">
+<img ng-src="{{pics[3]}}" class="img-thumbnail img-fluid" />
+<kbd ng-class="'bg-' + bg[3]">4</kbd>
+</div>
+<div class="col">
+<img ng-src="{{pics[4]}}" class="img-thumbnail img-fluid" />
+<kbd ng-class="'bg-' + bg[4]">5</kbd>
+</div>
+</div>
+<div class="row" id="answers" ng-show="finished">
+<div class="col"></div>
+<div class="col"></div>
+<div class="col"></div>
+<div class="col"></div>
+<div class="col"></div>
+</div>
+<div class="row py-3" ng-show="finished">
+<div class="col">
+<h2 class="text-center"><pre>Press Space to Play Again</pre></h2>
+</div>
+</div>
+<div class="row">
+<h1 class="col text-center text-uppercase py-2">{{words[word].word}}</h1>
+</div>
+<script>
+var app = angular.module('game',[]);
+app.controller("ctrl",function($scope,$http) {
+$scope.bg = new Array(5).fill("primary");
+$scope.pics = ["images/trump.jpg","images/cruz.jpg","images/rubio.jpg","images/clinton.jpg","images/sanders.jpg"];
+$scope.pressed = 0;
+$scope.shuffle = function(array) {
+var out = [];
+while(array.length > 0) {out.push(array.splice(Math.floor(Math.random()*array.length),1)[0]);}
+array.push(...out);
+};
+$scope.resetGame = function() {
+$scope.shuffle($scope.pics);
+$scope.shuffle($scope.words);
+$scope.word = 0;
+jQuery("#answers").children().empty();
+$scope.finished = false;
+}
+$http.get("words.json").then(function(response) {
+$scope.words = response.data;
+$scope.keydown = function(e) {
+	if($scope.pressed==0 && e.keyCode >= 49 && e.keyCode <= 53) { $scope.bg[e.keyCode-49]="success";
+	$scope.pressed = e.keyCode;
+	}
+};
+$scope.keyup = function(e) {
+if(e.keyCode==$scope.pressed) {
+	$scope.bg.fill("primary");
+	var item = $("<div class='text-capitalize'>");
+	var w = $scope.words[$scope.word];
+	item.addClass(w.type=="good"?"text-success":"text-danger");
+	item.text(w.word);
+	jQuery("#answers").children().eq(e.keyCode-49).append(item);
+		$scope.word++;
+		if($scope.word == $scope.words.length) $scope.finished = true;
+		$scope.pressed=0;
+	}
+	else if(e.key==" " && $scope.finished) {
+		$scope.resetGame();
+	}
+};
+$scope.resetGame()
+});
+
+
+});
+</script>
+</body>
+</html>
