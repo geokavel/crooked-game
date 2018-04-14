@@ -22,6 +22,12 @@ ng-keyup="keyup($event)">
 <div class="container-fluid">
 <div class="row">
 <div class="col">
+<h1 class="text-center" ng-show="begin">How do you <span class="font-italic">really</span> feel
+ about each of these former presidential candidates?</h1>
+<div>
+</div>
+<div class="row">
+<div class="col">
 <img ng-src="{{pics[0]}}" class="img-thumbnail img-fluid" />
 <kbd ng-class="'bg-' + bg[0]">1</kbd>
 </div>
@@ -49,9 +55,10 @@ ng-keyup="keyup($event)">
 <div class="col"></div>
 <div class="col"></div>
 </div>
-<div class="row py-3" ng-show="finished">
+<div class="row py-3">
 <div class="col">
-<h2 class="text-center"><pre>Press Space to Play Again</pre></h2>
+<h2 class="text-center" ng-show="begin">Press Space to Begin</h2>
+<h2 class="text-center" ng-show="finished && !begin"><pre>Press Space to Play Again</pre></h2>
 </div>
 </div>
 <div class="row">
@@ -63,6 +70,8 @@ app.controller("ctrl",function($scope,$http) {
 $scope.bg = new Array(5).fill("primary");
 $scope.pics = ["images/trump.jpg","images/cruz.jpg","images/rubio.jpg","images/clinton.jpg","images/sanders.jpg"];
 $scope.pressed = 0;
+$scope.begin = true;
+$scope.finished = true;
 $scope.shuffle = function(array) {
 var out = [];
 while(array.length > 0) {out.push(array.splice(Math.floor(Math.random()*array.length),1)[0]);}
@@ -71,18 +80,28 @@ array.push(...out);
 $scope.resetGame = function() {
 $scope.shuffle($scope.pics);
 $scope.shuffle($scope.words);
+$scope.begin = false;
 $scope.word = 0;
 jQuery("#answers").children().empty();
 $scope.finished = false;
 }
 $http.get("words.json").then(function(response) {
 $scope.words = response.data;
+$scope.loaded = true;
+});
+
 $scope.keydown = function(e) {
-	if($scope.pressed==0 && e.keyCode >= 49 && e.keyCode <= 53) { $scope.bg[e.keyCode-49]="success";
+	if(!$scope.finished && $scope.pressed==0 && e.keyCode >= 49 && e.keyCode <= 53) { $scope.bg[e.keyCode-49]="success";
 	$scope.pressed = e.keyCode;
 	}
 };
 $scope.keyup = function(e) {
+if($scope.finished) {
+ if(e.key==" ") {
+		$scope.resetGame();
+	}
+}
+else {
 if(e.keyCode==$scope.pressed) {
 	$scope.bg.fill("primary");
 	var item = $("<div class='text-capitalize'>");
@@ -94,12 +113,8 @@ if(e.keyCode==$scope.pressed) {
 		if($scope.word == $scope.words.length) $scope.finished = true;
 		$scope.pressed=0;
 	}
-	else if(e.key==" " && $scope.finished) {
-		$scope.resetGame();
 	}
 };
-$scope.resetGame()
-});
 
 
 });
