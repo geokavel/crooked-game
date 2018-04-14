@@ -7,5 +7,13 @@
 {"word":"good","type":"good"},
 {"word":"calculated","type":"bad"},
 {"word":"cynical","type":"bad"},
-{"word":"hopeful","type":"good"}
+{"word":"hopeful","type":"good"},
+{"word":"cheat","type":"bad"},
+{"word":"smart","type":"good"},
+{"word":"perseverant","type":"good"},
+{"word":"personable","type":"good"},
+{"word":"compassionate","type":"good"},
+{"word":"savage","type":"bad"},
+{"word":"eloquent","type":"good"},
+{"word":"manipulative","type":"bad"}
 ]
