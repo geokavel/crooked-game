@@ -27,71 +27,80 @@ ng-keyup="keyup($event)">
 <div>
 </div>
 <div class="row">
-<div class="col">
-<img ng-src="{{pics[0]}}" class="img-thumbnail img-fluid" />
-<kbd ng-class="'bg-' + bg[0]">1</kbd>
+<div class="col-6 col-sm-4 col-md py-1" ng-repeat="pic in pics">
+<img ng-src="{{'images/'+pic+'.jpg'}}" ng-click="finished?'':choose($index)"
+ng-class="{'img-thumbnail':!finished,'bg-primary':mouse[$index]==1 && !finished,
+'bg-success':mouse[$index]==2 && !finished,'pic':!finished,'transition':!clicked}"
+ng-mousedown="mouse[$index] = 2;clicked=true" ng-mouseup="mouse[$index] = 0;clicked=false"
+ng-mousemove="move($index)" ng-mouseleave="mouse[$index] = 0 "
+ class="img-fluid" />
+<kbd ng-hide="finished" ng-class="'bg-' + bg[$index]">{{$index+1}}</kbd>
+<div class="answers" ng-show="finished"></div>
 </div>
-<div class="col">
-<img ng-src="{{pics[1]}}" class="img-thumbnail img-fluid" />
-<kbd ng-class="'bg-' + bg[1]">2</kbd>
-</div>
-<div class="col">
-<img ng-src="{{pics[2]}}" class="img-thumbnail img-fluid" />
-<kbd ng-class="'bg-' + bg[2]">3</kbd>
-</div>
-<div class="col">
-<img ng-src="{{pics[3]}}" class="img-thumbnail img-fluid" />
-<kbd ng-class="'bg-' + bg[3]">4</kbd>
-</div>
-<div class="col">
-<img ng-src="{{pics[4]}}" class="img-thumbnail img-fluid" />
-<kbd ng-class="'bg-' + bg[4]">5</kbd>
-</div>
-</div>
-<div class="row" id="answers" ng-show="finished">
-<div class="col"></div>
-<div class="col"></div>
-<div class="col"></div>
-<div class="col"></div>
-<div class="col"></div>
 </div>
 <div class="row py-3">
 <div class="col">
-<h2 class="text-center" ng-show="begin">Press Space to Begin</h2>
-<h2 class="text-center" ng-show="finished && !begin"><pre>Press Space to Play Again</pre></h2>
+<h2 class="text-center" ng-show="finished"><button ng-click="resetGame()" class="btn btn-secondary">Click here</button> or <pre>Press Space to {{begin?"Begin":"Play Again"}}</pre></h2>
 </div>
 </div>
 <div class="row">
 <h1 class="col text-center text-uppercase py-2">{{words[word].word}}</h1>
 </div>
+<style>
+.pic
+{
+	cursor:pointer;
+}
+.transition
+{
+transition:background-color 0.75s;
+}
+</style>
 <script>
 var app = angular.module('game',[]);
 app.controller("ctrl",function($scope,$http) {
 $scope.bg = new Array(5).fill("primary");
-$scope.pics = ["images/trump.jpg","images/cruz.jpg","images/rubio.jpg","images/clinton.jpg","images/sanders.jpg"];
+$scope.pics = ["trump","cruz","rubio","clinton","sanders"];
+$scope.mouse = new Array(5).fill(0);
 $scope.pressed = 0;
 $scope.begin = true;
 $scope.finished = true;
+$scope.clicked = false;
 $scope.shuffle = function(array) {
 var out = [];
 while(array.length > 0) {out.push(array.splice(Math.floor(Math.random()*array.length),1)[0]);}
 array.push(...out);
 };
 $scope.resetGame = function() {
+$scope.mouse.fill(0);
 $scope.shuffle($scope.pics);
 $scope.shuffle($scope.words);
 $scope.begin = false;
 $scope.word = 0;
-jQuery("#answers").children().empty();
+jQuery(".answers").empty();
 $scope.finished = false;
 }
 $http.get("words.json").then(function(response) {
 $scope.words = response.data;
 $scope.loaded = true;
 });
+$scope.move = function(i) {
+$scope.mouse[i] = Math.max(1,$scope.mouse[i]);
+}
+$scope.choose = function(i) {
+	var item = $("<div class='text-capitalize'>");
+	var w = $scope.words[$scope.word];
+	item.addClass(w.type=="good"?"text-success":"text-danger");
+	item.text(w.word);
+	jQuery(".answers").eq(i).append(item);
+		$scope.word++;
+		if($scope.word == $scope.words.length) $scope.finished = true;
+}
 
 $scope.keydown = function(e) {
-	if(!$scope.finished && $scope.pressed==0 && e.keyCode >= 49 && e.keyCode <= 53) { $scope.bg[e.keyCode-49]="success";
+	if(!$scope.finished && $scope.pressed==0 && e.keyCode >= 49 && e.keyCode <= 53) { 
+	$scope.mouse.fill(0);
+	$scope.bg[e.keyCode-49]="success";
 	$scope.pressed = e.keyCode;
 	}
 };
@@ -104,13 +113,7 @@ if($scope.finished) {
 else {
 if(e.keyCode==$scope.pressed) {
 	$scope.bg.fill("primary");
-	var item = $("<div class='text-capitalize'>");
-	var w = $scope.words[$scope.word];
-	item.addClass(w.type=="good"?"text-success":"text-danger");
-	item.text(w.word);
-	jQuery("#answers").children().eq(e.keyCode-49).append(item);
-		$scope.word++;
-		if($scope.word == $scope.words.length) $scope.finished = true;
+	$scope.choose(e.keyCode-49);
 		$scope.pressed=0;
 	}
 	}
