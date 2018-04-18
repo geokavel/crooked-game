@@ -15,5 +15,12 @@
 {"word":"compassionate","type":"good"},
 {"word":"savage","type":"bad"},
 {"word":"eloquent","type":"good"},
-{"word":"manipulative","type":"bad"}
+{"word":"manipulative","type":"bad"},
+{"word":"dark","type":"bad"},
+{"word":"loser","type":"bad"},
+{"word":"fantastic","type":"good"},
+{"word":"disaster","type":"bad"},
+{"word":"comedic","type":"good"},
+{"word":"wrong","type":"bad"},
+{"word":"sad","type":"bad"}
 ]
